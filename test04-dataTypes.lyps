@@ -1,0 +1,203 @@
+>>> ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+... ;;;;;;  Starting Log ( 2025-11-05T14:40:13.218467 ): test0003.lyps
+... 0
+
+==> 0
+
+>>> (list (+ 1 3) '(apple pear "string") 22/7 false)
+...
+
+==> (4 (APPLE PEAR "string") 22/7 FALSE)
+
+>>> (first '(apple banana cake))
+...
+
+==> APPLE
+
+>>> (rest '(apple banana cake donut))
+...
+
+==> (BANANA CAKE DONUT)
+
+>>> (first '())
+...
+
+==> NULL
+
+>>> (rest '(donkey))
+...
+
+==> NULL
+
+>>> (cons 'apple '(banana orange pear))
+...
+
+==> (APPLE BANANA ORANGE PEAR)
+
+>>> (remove 'orange '(apple banana orange pear))
+...
+
+==> (APPLE BANANA PEAR)
+
+>>> (push! '(1 2 3 4) 6)
+...
+
+==> (1 2 3 4 6)
+
+>>> (set! 'a '(1 2 3 4))
+...
+
+==> (1 2 3 4)
+
+>>> a
+...
+
+==> (1 2 3 4)
+
+>>> (pop! a)
+...
+
+==> 4
+
+>>> a
+...
+
+==> (1 2 3)
+
+>>> (set! 'mylist '("a" "b" "c" "d"))
+...
+
+==> ("a" "b" "c" "d")
+
+>>> mylist
+...
+
+==> ("a" "b" "c" "d")
+
+>>> (at mylist 2)
+...
+
+==> "c"
+
+>>> (atset! mylist 1 1)
+...
+
+==> 1
+
+>>> mylist
+...
+
+==> ("a" 1 "c" "d")
+
+>>> (join mylist '(pi e))
+...
+
+==> ("a" 1 "c" "d" PI E)
+
+>>> (hasvalue? '(a b c d) pi)
+...
+
+==> 0
+
+>>> (hasvalue? '(a b c d) 'c)
+...
+
+==> 1
+
+>>> (size null)
+...
+
+==> 0
+
+>>> (size '(a b c d))
+...
+
+==> 4
+
+>>> (reverse '(1 2 3 4 5))
+...
+
+==> (5 4 3 2 1)
+
+>>> (set! 'mymap (map ("a" 1) ("b" 2) ("c" 3) ) )
+...
+
+==> (MAP
+   ("a" 1)
+   ("b" 2)
+   ("c" 3)
+)
+
+>>> mymap
+...
+
+==> (MAP
+   ("a" 1)
+   ("b" 2)
+   ("c" 3)
+)
+
+>>> (at mymap "b")
+...
+
+==> 2
+
+>>> (atset! mymap "b" e)
+...
+
+==> 2.718281828459045
+
+>>> mymap
+...
+
+==> (MAP
+   ("a" 1)
+   ("b" 2.718281828459045)
+   ("c" 3)
+)
+
+>>> (hasValue? mymap 1)
+...
+
+==> 1
+
+>>> (hasValue? mymap 10)
+...
+
+==> 0
+
+>>> (update! mymap (map ("b" 5) ("d" 10)))
+...
+
+==> (MAP
+   ("a" 1)
+   ("b" 5)
+   ("c" 3)
+   ("d" 10)
+)
+
+>>> mymap
+...
+
+==> (MAP
+   ("a" 1)
+   ("b" 5)
+   ("c" 3)
+   ("d" 10)
+)
+
+>>> (hasKey? mymap "a")
+...
+
+==> 1
+
+>>> (hasKey? mymap 3)
+...
+
+==> 0
+
+>>> ;;;;;;  Logging ended.
+... ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+... 0
+
+==> 0

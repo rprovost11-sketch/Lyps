@@ -1,0 +1,150 @@
+>>> ;; Shorthand defun! local
+... ;;
+... ;; (defun! (<name> <arg1> <arg2> ...)
+... ;;         <expr>)
+... ;;(def!! 'defun! (lam (nameAndArgs expr)
+... ;;                    (def!  (first nameAndArgs)
+... ;;                           (lam (rest nameAndArgs)
+... ;;                                expr))))
+...
+>>> ;; Shorthand defun!! global
+... ;;
+... ;; (defun!! (<name> <arg1> <arg2> ...)
+... ;;          <expr>)
+... ;;(def!! 'defun!! (lam (nameAndArgs expr)
+... ;;                     (def!! (first nameAndArgs)
+... ;;                            (lam (rest nameAndArgs)
+... ;;                                 expr))))
+...
+>>> (defun!! apply (aFn aList)
+...          (if (isNull? aList)
+...              '( )
+...              (cons (aFn (first aList))
+...                    (apply aFn (rest aList)))))
+...
+>>> (defun!! foreach (sym lst expr)
+...          (cond
+...              ((= (size lst) 0)  '())
+...              ((= (size lst) 1)   (block
+...                                      (def! sym (first lst))
+...                                      (eval expr)))
+...              (1                  (block
+...                                      (def! sym (first lst))
+...                                      (eval expr)
+...                                      (foreach sym (rest lst) expr)))
+...                  ))
+...
+>>> ;; Prompt the user for input on the command line.
+... ;;
+... (defun!! read_prompt (promptStr)
+...          (block
+...             (write! promptStr)
+...             (readLn!)          ))
+...
+>>> (defun!! isEven? (intVal)
+...          (= (mod intVal 2) 0))
+...
+>>> (defun!! isOdd? (intVal)
+...          (= (mod intVal 2) 1))
+...
+>>> ;; List - remove a symbol from a list - destructive
+... ;;
+... ;; (remove '<symbol> '<list>)
+... (defun!! remove (sym lst)
+...          (cond
+...             ((isNull? lst)        null)
+...             ((= sym (first lst))                    (rest lst))
+...             (1                    (cons (first lst) (remove sym (rest lst))))))
+...
+>>> ;; List - compute the length of the list
+... ;;
+... ;; (size '<list>)
+... (defun!! size (lst)
+...          (if (isNull? lst)
+...              0
+...              (+ 1 (size (rest lst)))))
+...
+>>> ;; List - reverse the order of the top level elements
+... ;;
+... ;; (reverse '<list>)
+... (defun!! reverse (lst)
+...          (reverse-aux '() lst))
+...
+>>> (defun!! reverse-aux (destLst srcLst)
+...          (if (isNull? srcLst)
+...              destLst
+...              (reverse-aux (cons (first srcLst) destLst) (rest srcLst))))
+...
+>>> ;; List - make a copy of the argument list
+... ;;
+... ;; (copy <list>)
+... (defun!! copy (lst)
+...          (reverse (reverse lst)))
+...
+>>> ;; List - make a deepCopy fo the argument list
+... ;;
+... ;; (deepCopy <list>)
+...
+... (defun!! deepCopy (expr)
+...          (cond ((isNull?   expr)  '( ))
+...                 ((isAtom?   expr)  expr)
+...                 ((isString? expr)  expr)
+...                 ((isList?   expr)  (cons (deepcopy (first expr))
+...                                          (deepcopy (rest  expr)))) ))
+...
+>>> ;; (dig aTree aPath)
+... ;;
+... ;; Given a nested structure of lists and maps, this function will execute
+... ;; a depth-first traversal down aPath - a list of map keys and list inidies.
+... ;; returns the object in that location.
+... (defun!! dig (aTree aPath)
+...          (if (isNull? aPath)
+...              aTree
+...              (dig (at aTree (first aPath)) (rest aPath)) ))
+...
+>>> ;; Compare two lists for deep equality - deep comparison
+... ;;
+... ;; (equal? '<expr-1> '<expr-2>)
+... (defun!! equal? (expr1 expr2)
+...          (cond ((or (isAtom? expr1)
+...                     (isNull? expr1))
+...                                       (= expr1 expr2))
+...                    ((and (isList? expr1)
+...                          (isList? expr2))
+...                                  (and (isList? expr2)
+...                                       (and (equal? (first expr1) (first expr2))
+...                                            (equal? (rest expr1) (rest expr2)))))
+...                    (1
+...                                  null)))
+...
+>>> ;; Compute the factorial
+... ;;
+... ;; (fact n)
+... (defun!! fact (n)
+...          (if (= n 0)
+...              1
+...              (* n (fact (- n 1)))))
+...
+>>> ;; Compute the Fibonacci number
+... ;;
+... ;; (fib n)
+... (defun!! fib (n)
+...          (if (<= n 2)
+...              1
+...              (+ (fib (- n 1))
+...                 (fib (- n 2)))))
+...
+>>> (defun!! d (expr)
+...          (cond ((isNumber? expr)
+...                       0)
+...                ((isSymbol? expr)
+...                       1)
+...                ((isList? expr)
+...                       (case (first expr)
+...                             ('+        (list '+   (d (at expr 1)) (d (at expr 2))))
+...                             ('*        (list '+   (list '* (at expr 2) (d (at expr 1))) (list '* (at expr 1) (d (at expr 2)))))
+...                             ('sin      (list 'cos (at expr 1)))
+...                             ('cos      (list 'neg (list 'sin (at expr 1))))
+...                             ('pow      (list '*   (list '* (at expr 2) (list 'pow (at expr 1) (- (at expr 2) 1))) (d (at expr 1))))
+...                             ))))
+...

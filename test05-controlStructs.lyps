@@ -1,0 +1,85 @@
+>>> (set! 'val1 3)
+...
+
+==> 3
+
+>>> (cond
+...    ((= val1 1)
+...                 "one")
+...    ((= val1 2)
+...                 "two")
+...    ((= val1 3)
+...                 "three"))
+...
+
+==> "three"
+
+>>> (case val1
+...    (1
+...        "one")
+...    (2
+...        "two")
+...    (3
+...        "three")
+...    )
+...
+
+==> "three"
+
+>>> (defun!! countdown1 (num)
+...    (while num
+...       (block
+...          (writeLn! num)
+...          (set! 'num (- num 1))
+...          )
+...       )
+...    )
+...
+
+==> (Function COUNTDOWN1 (NUM) ... )
+
+>>> (countdown1 5)
+...
+5
+4
+3
+2
+1
+
+==> 0
+
+>>> (defun!! countdown2 (num)
+...    (while (> num 0)
+...       (block
+...          (writeLn! num)
+...          (set! 'num (- num 1))
+...          )
+...    )
+... )
+...
+
+==> (Function COUNTDOWN2 (NUM) ... )
+
+>>> (countdown2 3)
+3
+2
+1
+
+==> 0
+
+>>> (foreach 'item '(0 1 2 3 4 5)
+...    '(writeLn! item))
+...
+0
+1
+2
+3
+4
+5
+
+==> 5
+
+>>> (apply (lam (num) (* num 2)) '(0 1 2 3))
+...
+
+==> (0 2 4 6)

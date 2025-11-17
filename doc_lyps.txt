@@ -1,0 +1,210 @@
+Lyps Documentation
+==================
+
+Lyps is a dialect of Lisp.
+
+Goals
+-----
+- Minimize the number of special forms
+
+   Special Forms
+   quote  - necessary because it alters normal evaluation order.
+
+The Language
+============
+Lexical Elements
+----------------
+   Comments
+      Comments extend from ';;' through '\n'.
+      All text between and including these two delimiters is ignored.
+
+   Delimiters:
+      ';', '#', '(', ')', '|', '[', ']', ';;', '\n'
+
+   Literals
+      NumberLiteral:  ('+'|'-')('0' .. '9')+
+                      ( '.' ('0' .. '9')+ | '/' ('0' .. '9')+ )
+                      # Integer, Decimal or Fraction.  Scientific notation
+                      #    not supported right now.
+      StringLiteral:  '"' (^('"'))* '"'
+      Symbol:         'a..zA..Z+-~!@$%^&*_=\:/?<>'
+                      { 'a..zA..Z+-~!@$%^&*_=\:/?<>0..9' }
+
+   Reserved Symbols
+         'null', 'pi', 'e', 'inf', 'nan'
+
+Grammar
+-------
+   Start:
+      Object EOF
+
+   Object:
+      NumberLiteral | StringLiteral | Symbol | List | '#' | '|' | ':' | '[' | ']'
+
+   List:
+      '(' [ Object { Object } ] ')'
+
+### LYPS PRIMITIVES ###
+#######################
+
+### Values ###
+NULL                                    ;; defined as an empty list.
+PI                                      ;; the constant pi.
+E                                       ;; the constant e.
+INF                                     ;; the constant positive infinity.
+-INF                                    ;; the constant negative infinity.
+NAN                                     ;; the constant not a number.
+
+### Variable Definition ###
+(def! '<symbol> <expr> )                ;; Define a var in the local scope.
+(def!! '<symbol> <expr> )               ;; Define a var in the global scope.
+(defun! name (<arg1> <arg2> ...)        ;; Define and return a local function.
+        <expr1> <expr2> ...)
+(defun!! name (<arg1> <arg2> ...)       ;; Define and return a global function.
+        <expr1> <expr2> ...)
+(set! '<symbol> <expr> )                ;; Update a variable's value.  If isn't
+                                        ;;    bound, define a local.
+(undef! '<symbol>)                      ;; Undefine the most local definition
+                                        ;;    for a symbol.
+(symtab!)                               ;; Print a symbol tab.  Each scope on a
+                                        ;;    separate line.  Local scope first.
+                                        ;;    Global scope last.
+
+### Control Structures ###
+(lam (<arg1> <arg2> ...) <expr1> <expr2> ...)
+                                        ;; Return a lambda function.
+                                        ;;    When evaluating such a function
+                                        ;;    expr2 is evaluated within a
+                                        ;;    nested scope.
+(block <expr1> <expr2> ...)             ;; Execute the sequence of expr's in a
+                                        ;;    nested scope.  Returns the result
+                                        ;;    of the last expr evaluated.
+(if <cond> <conseq> [<alt>])            ;; If cond evaluates to true evaluates
+                                        ;;    conseq otherwise evaluates alt.
+(cond (<cond> <expr>) (<cond> <expr>) ...)
+                                        ;; Evaluates each cond in order until
+                                        ;;    one evaluates to true.  Then
+                                        ;;    evaluate and return the result
+                                        ;;    of the associated expr.  All
+                                        ;;    remaining conds and exprs are
+                                        ;;    skipped.
+(case <expr> (<val1> <expr1>) (<val2> <expr2>) ...)
+                                        ;; Evaluates expr.  Finds the first
+                                        ;;    val that equals expr's result.
+                                        ;;    evaluates the corresponding expr.
+                                        ;;    All remaining (val expr) pairs
+                                        ;;    are skipped.
+(quote <expr>)                          ;; Returns <expr> without evaluating it.
+(while <conditionExpr> <bodyExpr>)      ;; Perform a loop over bodyExpr.  Before
+                                        ;;    each execution of bodyExpr
+                                        ;;    conditionExpr is evaluated.  If
+                                        ;;    conditionExpr is true, bodyExp is
+                                        ;;    evaluated, then the conditionExpr
+                                        ;;    is evaluated again and so on
+                                        ;;    looping.  However if conditionExpr
+                                        ;;    ever evaluates to false, while
+                                        ;;    returns the result of the most
+                                        ;;    recent body evaluation, or it
+                                        ;;    returns NULL.
+(eval '<expr>)                          ;; Evaluate <expr> in the current scope.
+(parse <string>)                        ;; Parse the string as a lyps expression
+                                        ;;    and returns the lyps expression.
+(pprint '<expr>)                        ;; Pretty Print a lyps expression.
+
+### List & Map Manipulation ###
+(list <expr-1> <expr-2> ...)            ;; Returns a new list of evaluated
+                                        ;;    expressions.
+(first <list>)                          ;; Return the first item in the list.
+(rest <list>)                           ;; Return the list minus the first item.
+(cons '<obj> '<list>)                   ;; Return a new list with <obj> inserted
+                                        ;;    into the front of list.
+(push! '<list> '<value>)                ;; Push a value onto the back of a list.
+(pop! '<list>)                          ;; Pop and returns the last value of the
+                                        ;;    list.
+(at '<listOrMap> '<keyOrIndex>)         ;; Return the value at a specified index
+                                        ;;    or key of a map or list.
+(atSet! <listOrMap> <keyOrIndex> <value>)
+                                        ;; Update the key/index in the given
+                                        ;;    list/map with value.  Returns
+                                        ;;    value.
+(join '<list-1> '<list-2>)              ;; Return a new list with the two lists
+                                        ;; merged.  Order is retained.
+(hasValue? '<listOrMap> '<value>)       ;; Returns 1 if the list/map contains
+                                        ;;    value.
+(map '( (<key1> <val1>) (<key2> <val>2) ...))
+                                        ;; Construct a map of key-value pairs.
+(update! <map1> <map2>)                 ;; Merge map2's data into map1.
+(hasKey? <map> <key>)                   ;; Return 1 if key is in map.
+
+### Arithmetic Operations ###
+(+ <expr1> <expr2> ...)                 ;; Returns the sum of numbers or
+                                        ;;    concatenates strings.
+(- <expr1> <expr2> ...)                 ;; Returns the difference.
+(* <expr1> <expr2> ...)                 ;; Returns the product.
+(/ <expr1> <expr2> ...)                 ;; Returns the quotient.
+(// <expr1> <expr2>)                    ;; Returns the integer division.
+(mod <expr1> <expr2>)                   ;; Returns the integer remainder.
+(trunc <expr>)                          ;; Returns expr as an integer.
+(abs <expr>)                            ;; Returns the absolute value.
+(log <x> [<base>])                      ;; Returns the log of x.  If base if not
+                                        ;;    provided, 10 is used.
+(pow <base> <power>)                    ;; Returns base raised to power.
+(sin <radians>)                         ;; Returns the sin of radians.
+(cos <radians>)                         ;; Returns the cos of radians.
+(tan <radians>)                         ;; Returns the tan of radians.
+(exp <pow:number>)                      ;; Returns the exponent of number.
+(min <val1> <val2> ...)                 ;; Returns the lowest of the values.
+(max <val1> <val2> ...)                 ;; Returns the highest of the values.
+
+### Predicates ###
+(isNull? <expr>)                        ;; Returns 1 if expr is NULL.
+(isNumber?  <expr>)                     ;; Returns 1 if expr is a number.
+(isSymbol?  <expr>)                     ;; Returns 1 if expr is a symbol.
+(isAtom? <expr>)                        ;; Returns 1 if expr in { int, float,
+                                        ;;   fraction, string }.
+(isList? <expr>)                        ;; Returns 1 if expr is a list.
+(isMap?  <expr>)                        ;; Returns 1 if expr is a map.
+(isString?  <expr>)                     ;; Returns 1 if expr is a string.
+(isFunction? <expr>)                    ;; Returns 1 if expr is a function.
+
+### Relational Operators ###
+(is? <val1> <val2>)                     ;; Are the two values the same object?
+(=   <val1> <val2> ...)                 ;; Are all the values equal?
+(<>  <val1> <val2> ...)                 ;; Are all the values unequal?
+(<   <val1> <val2> ...)                 ;; Are all the values less than?
+(<=  <val1> <val2> ...)                 ;; Are all the values less than or equal
+(>   <val1> <val2> ...)                 ;; Are all the values more than?
+(>=  <val1> <val2> ...)                 ;; Are all the values more than or equal
+
+### Logical Operators ###
+(not <val>)                             ;; Returns the negation of val.
+(and <val1> <val2> ...)                 ;; Returns the logical and of vals.
+(or  <val1> <val2> ...)                 ;; Returns the logical or of vals.
+
+### Type Conversion ###
+(float <val>)                           ;; Returns val as a float.
+(string <expr1> <expr2> ...)            ;; Returns the concatenation of the
+                                        ;;    string results of the arguments.
+
+### I/O ###
+(write! <expr>)                         ;; Write text to the screeen/stream.
+(writeLn! <expr>)                       ;; Write a line of text to the
+                                        ;;    screen/stream.
+(read!)                                 ;; Read input from keyboard/stream.
+
+Library
+=======
+
+(apply <fn> <list>)                     ;; Apply fn to each member of list.
+                                        ;;    Returns the results in a list.
+(forEach '<symbol> '<list> '<expr>)     ;; Each iteration assigns list element
+                                        ;;    to symbol, and evaluates expr.
+(read_prompt promptStr)                 ;; Write a prompt and read a value.
+(isEven? intVal)                        ;; Is the intval even?
+(isOdd? intVal)                         ;; Is the intval odd?
+(remove '<symbol> '<list>)              ;; Remove a symbol from a list.
+(size '<list>)                          ;; Return the length of a list.
+(reverse '<list>)                       ;; Return a new list with list reversed.
+(copy <list>)                           ;; Return a copy of a list.
+(deepCopy <list>)                       ;; Return a deepcopy of a list.
+(fact n)                                ;; compute the factorial of n.
